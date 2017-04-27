@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
@@ -18,11 +19,14 @@ import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.impl.RepositoryServiceImpl;
 //import org.activiti.engine.impl.bpmn.diagram.ProcessDiagramGenerator;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.persistence.entity.TaskEntity;
+import org.activiti.engine.impl.pvm.PvmTransition;
+import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -66,7 +70,7 @@ public class ProcessEngineCore {
 	 * @throws FileNotFoundException
 	 */
 	public void deploymentInstance(String processFilePath) throws FileNotFoundException {
-		
+
 
 		if(processFilePath.endsWith("zip")){
 			InputStream inZip = this.getClass().getClassLoader().getResourceAsStream(processFilePath);  
@@ -88,12 +92,12 @@ public class ProcessEngineCore {
 			logger.info("process deployment success & processID is " + deployment.getId() + ",createTime is " + deployment.getDeploymentTime());
 		}
 	}
-	
+
 	/**
 	 * 查询所有定义流程
 	 */
 	public void findAllProcess(){
-		
+
 	}
 
 	/**
@@ -264,14 +268,103 @@ public class ProcessEngineCore {
 		 */
 		logger.info("hello");
 		imageStream =  processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator().generateDiagram(bpmnModel, "png", runtimeService.getActiveActivityIds(findProcessInstanceByTaskId(taskId).getId()));
-		/* imageStream =  processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator().generateDiagram(bpmnModel, "png",
-	        		processEngine.getProcessEngineConfiguration().getActivityFontName(),
-	        		processEngine.getProcessEngineConfiguration().getLabelFontName(), 
-	        		processEngine.getProcessEngineConfiguration().getActivityFontName(),
-	        		processEngine.getProcessEngineConfiguration().getClassLoader(), 1.0);*/
+		imageStream =  processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator().generateDiagram(bpmnModel, "png",
+				"宋体",
+				"宋体", 
+				"宋体",
+				processEngine.getProcessEngineConfiguration().getClassLoader(), 1.0);
+		
+		ProcessDefinitionEntity definitionEntity = (ProcessDefinitionEntity)repositoryService.getProcessDefinition(pInstance.getProcessDefinitionId());
+        List<HistoricActivityInstance> highLightedActivitList =  historyService.createHistoricActivityInstanceQuery().processInstanceId(pId).list();
+		 List<String> highLightedFlows = getHighLightedFlows(definitionEntity,highLightedActivitList);
+
+		imageStream =  processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator().generateDiagram(bpmnModel, "png",
+				runtimeService.getActiveActivityIds(findProcessInstanceByTaskId(taskId).getId()),
+				highLightedFlows,
+				"宋体",
+				"宋体", 
+				"宋体",
+				processEngine.getProcessEngineConfiguration().getClassLoader(), 1.0);
+		
+		/*
+		 generateImage(BpmnModel bpmnModel, String imageType, List highLightedActivities, List highLightedFlows, String activityFontName, String labelFontName, String annotationFontName, 
+		            ClassLoader customClassLoader, double scaleFactor);
+		 */
 		//   processEngine.close();
+
+		/*imageStream = processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator().generateDiagram(
+    			bpmnModel, 
+    			"png", 
+    			runtimeService.getActiveActivityIds(findProcessInstanceByTaskId(taskId).getId()), 
+    			new ArrayList<String>(), 
+    			"宋体", 
+    			"宋体", 
+    			null, 
+    			1.0);
+		 */
+
+		/*	imageStream = processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator()
+
+	    .generateDiagram(bpmnModel, "png", 
+
+	                     processEngine.getProcessEngineConfiguration().getActivityFontName(),
+
+	                     processEngine.getProcessEngineConfiguration().getLabelFontName(), 
+
+	                     1.0);*/
 		return imageStream;
 	}
+	
+	/**
+     * 获取需要高亮的线
+     * @param processDefinitionEntity
+     * @param historicActivityInstances
+     * @return
+     */
+    private List<String> getHighLightedFlows(
+            ProcessDefinitionEntity processDefinitionEntity,
+            List<HistoricActivityInstance> historicActivityInstances) {
+        List<String> highFlows = new ArrayList<String>();// 用以保存高亮的线flowId
+        for (int i = 0; i < historicActivityInstances.size() - 1; i++) {// 对历史流程节点进行遍历
+            ActivityImpl activityImpl = processDefinitionEntity
+                    .findActivity(historicActivityInstances.get(i)
+                            .getActivityId());// 得到节点定义的详细信息
+            List<ActivityImpl> sameStartTimeNodes = new ArrayList<ActivityImpl>();// 用以保存后需开始时间相同的节点
+            ActivityImpl sameActivityImpl1 = processDefinitionEntity
+                    .findActivity(historicActivityInstances.get(i + 1)
+                            .getActivityId());
+            // 将后面第一个节点放在时间相同节点的集合里
+            sameStartTimeNodes.add(sameActivityImpl1);
+            for (int j = i + 1; j < historicActivityInstances.size() - 1; j++) {
+                HistoricActivityInstance activityImpl1 = historicActivityInstances
+                        .get(j);// 后续第一个节点
+                HistoricActivityInstance activityImpl2 = historicActivityInstances
+                        .get(j + 1);// 后续第二个节点
+                if (activityImpl1.getStartTime().equals(
+                        activityImpl2.getStartTime())) {
+                    // 如果第一个节点和第二个节点开始时间相同保存
+                    ActivityImpl sameActivityImpl2 = processDefinitionEntity
+                            .findActivity(activityImpl2.getActivityId());
+                    sameStartTimeNodes.add(sameActivityImpl2);
+                } else {
+                    // 有不相同跳出循环
+                    break;
+                }
+            }
+            List<PvmTransition> pvmTransitions = activityImpl
+                    .getOutgoingTransitions();// 取出节点的所有出去的线
+            for (PvmTransition pvmTransition : pvmTransitions) {
+                // 对所有的线进行遍历
+                ActivityImpl pvmActivityImpl = (ActivityImpl) pvmTransition
+                        .getDestination();
+                // 如果取出的线的目标节点存在时间相同的节点里，保存该线的id，进行高亮显示
+                if (sameStartTimeNodes.contains(pvmActivityImpl)) {
+                    highFlows.add(pvmTransition.getId());
+                }
+            }
+        }
+        return highFlows;
+    }
 
 	public void setRepositoryService(RepositoryService repositoryService) {
 		this.repositoryService = repositoryService;
