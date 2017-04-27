@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!-- Always ensure to use the correct XML header as above! -->
+ <mapper namespace="tangzongyun.activiti.FlowLog">
+	<insert id="insertFlowLog" parameterType="flowLog">
+		insert into t_flow_log (
+		FORMID,
+		USERID,
+		USERTYPE,
+		ACTION,
+		LOGTIME,
+		OPINION,
+		TASKID,
+		TASKNAME,
+		FLOWID,
+		RECORDID
+		)
+		values
+		(
+		#{formID,jdbcType=VARCHAR},
+		#{userID,jdbcType=VARCHAR},
+		#{userType,jdbcType=VARCHAR},
+		#{action,jdbcType=VARCHAR},
+		#{logTime,jdbcType=VARCHAR},
+		#{opinion,jdbcType=VARCHAR},
+		#{taskID,jdbcType=VARCHAR},
+		#{taskName,jdbcType=VARCHAR},
+		#{flowID,jdbcType=VARCHAR},
+		#{recordID,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<update id="updateFlowLog" parameterType="flowLog">
+		update t_flow_log
+		<set>
+			<if test="ID != null and ID != 0">
+			ID = #{ID},
+			</if>
+			<if test="formID != null">
+			FORMID = #{formID},
+			</if>
+			<if test="userID != null">
+			USERID = #{userID},
+			</if>
+			<if test="userType != null">
+			USERTYPE = #{userType},
+			</if>
+			<if test="action != null">
+			ACTION = #{action},
+			</if>
+			<if test="logTime != null">
+			LOGTIME = #{logTime},
+			</if>
+			<if test="opinion != null">
+			OPINION = #{opinion},
+			</if>
+			<if test="taskID != null">
+			TASKID = #{taskID},
+			</if>
+			<if test="taskName != null">
+			TASKNAME = #{taskName},
+			</if>
+			<if test="flowID != null">
+			FLOWID = #{flowID},
+			</if>
+			<if test="recordID != null">
+			RECORDID = #{recordID}
+			</if>
+		</set>
+		where ID = #{ID}
+	</update>
+	
+	<delete id="deleteFlowLog" parameterType="flowLog">
+		delete from t_flow_log
+		<where>
+			<if test="ID != null and ID != 0">
+			  AND ID = #{ID}
+			</if>
+			<if test="formID != null">
+			  AND FORMID = #{formID}
+			</if>
+			<if test="userID != null">
+			  AND USERID = #{userID}
+			</if>
+			<if test="userType != null">
+			  AND USERTYPE = #{userType}
+			</if>
+			<if test="action != null">
+			  AND ACTION = #{action}
+			</if>
+			<if test="logTime != null">
+			  AND LOGTIME = #{logTime}
+			</if>
+			<if test="opinion != null">
+			  AND OPINION = #{opinion}
+			</if>
+			<if test="taskID != null">
+			  AND TASKID = #{taskID}
+			</if>
+			<if test="taskName != null">
+			  AND TASKNAME = #{taskName}
+			</if>
+			<if test="flowID != null">
+			  AND FLOWID = #{flowID}
+			</if>
+			<if test="recordID != null">
+			  AND RECORDID = #{recordID}
+			</if>
+		</where>
+	</delete>
+	
+	<select id="listFlowLog" resultType="flowLog" parameterType="flowLog">
+		select
+		*
+		from t_flow_log WHERE 1=1
+		<if test="ID != null and ID != 0">
+		 AND ID = #{ID}
+		</if>
+		<if test="formID != null">
+		 AND FORMID = #{formID}
+		</if>
+		<if test="userID != null">
+		 AND USERID = #{userID}
+		</if>
+		<if test="userType != null">
+		 AND USERTYPE = #{userType}
+		</if>
+		<if test="action != null">
+		 AND ACTION = #{action}
+		</if>
+		<if test="logTime != null">
+		 AND LOGTIME = #{logTime}
+		</if>
+		<if test="opinion != null">
+		 AND OPINION = #{opinion}
+		</if>
+		<if test="taskID != null">
+		 AND TASKID = #{taskID}
+		</if>
+		<if test="taskName != null">
+		 AND TASKNAME = #{taskName}
+		</if>
+		<if test="flowID != null">
+		 AND FLOWID = #{flowID}
+		</if>
+		<if test="recordID != null">
+		 AND RECORDID = #{recordID}
+		</if>
+	</select>
+
+	<select id="listFlowLogCount" resultType="java.lang.Integer" parameterType="flowLog">
+		select
+		COUNT(*)
+		from
+		t_flow_log where 1=1
+		<if test="ID != null and ID != 0">
+		 AND ID = #{ID}
+		</if>
+		<if test="formID != null">
+		 AND FORMID = #{formID}
+		</if>
+		<if test="userID != null">
+		 AND USERID = #{userID}
+		</if>
+		<if test="userType != null">
+		 AND USERTYPE = #{userType}
+		</if>
+		<if test="action != null">
+		 AND ACTION = #{action}
+		</if>
+		<if test="logTime != null">
+		 AND LOGTIME = #{logTime}
+		</if>
+		<if test="opinion != null">
+		 AND OPINION = #{opinion}
+		</if>
+		<if test="taskID != null">
+		 AND TASKID = #{taskID}
+		</if>
+		<if test="taskName != null">
+		 AND TASKNAME = #{taskName}
+		</if>
+		<if test="flowID != null">
+		 AND FLOWID = #{flowID}
+		</if>
+		<if test="recordID != null">
+		 AND RECORDID = #{recordID}
+		</if>
+	</select>
+	
+	<select id="findFlowLogByID" resultType="flowLog" parameterType="flowLog">
+		select
+		*
+		from t_flow_log
+		where ID = #{ID}
+	</select>
+	
+	<select id="selectsequence" resultType="java.lang.Long">
+		select SEQ_FlowLog_ID.nextval from dual
+    </select>
+</mapper>

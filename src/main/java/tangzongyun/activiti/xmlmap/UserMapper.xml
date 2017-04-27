@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!-- Always ensure to use the correct XML header as above! -->
+<mapper namespace="tangzongyun.activiti.User">
+	<insert id="insertSysUser" parameterType="user">
+		insert into t_user (
+		ID,
+		USERNAME,
+		password
+		)
+		values
+		(
+		#{ID,jdbcType=VARCHAR},
+		#{username,jdbcType=VARCHAR},
+		#{password,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<update id="updateSysUser" parameterType="user">
+		update t_user
+		<set>
+			<if test="ID != null and ID != 0">
+				ID = #{ID},
+			</if>
+			<if test="username != null">
+				USERNAME = #{username},
+			</if>
+			<if test="password != null">
+				password = #{password}
+			</if>
+		</set>
+		where ID = #{ID}
+	</update>
+
+	<delete id="deleteSysUser" parameterType="user">
+		delete from t_user
+		<where>
+			<if test="ID != null and ID != 0">
+				AND ID = #{ID}
+			</if>
+			<if test="username != null">
+				AND USERNAME = #{username}
+			</if>
+			<if test="password != null">
+				AND password = #{password}
+			</if>
+		</where>
+	</delete>
+
+	<select id="listSysUser" resultType="user" parameterType="user">
+		select
+		*
+		from t_user WHERE 1=1
+		<if test="ID != null and ID != 0">
+			AND ID = #{ID}
+		</if>
+		<if test="username != null">
+			AND USERNAME = #{username}
+		</if>
+		<if test="password != null">
+			AND password = #{password}
+		</if>
+	</select>
+
+	<select id="listSysUserCount" resultType="java.lang.Integer" parameterType="user">
+		select
+		COUNT(*)
+		from
+		t_user where 1=1
+		<if test="ID != null and ID != 0">
+			AND ID = #{ID}
+		</if>
+		<if test="username != null">
+			AND USERNAME = #{username}
+		</if>
+		<if test="password != null">
+			AND password = #{password}
+		</if>
+	</select>
+
+	<select id="findUserByID" resultType="user" parameterType="user">
+		select
+		*
+		from t_user
+		where 1 = 1
+		<if test="ID != null and ID != 0">
+			AND ID = #{ID}
+		</if>
+		<if test="username != null">
+			AND USERNAME = #{username}
+		</if>
+		<if test="password != null">
+			AND password = #{password}
+		</if>
+	</select>
+
+	<select id="selectsequence" resultType="java.lang.Long">
+		select SEQ_SysUser_ID.nextval from dual
+    </select>
+</mapper>

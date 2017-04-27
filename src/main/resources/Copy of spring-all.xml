@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	default-autowire="byName" default-lazy-init="true"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<context:property-placeholder location="classpath:db.properties" />
+
+
+	<!-- 配置数据源druid -->
+	<bean name="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		init-method="init" destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driverClass}"></property>
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<!-- 初始化连接大小 -->
+		<property name="initialSize" value="${duird.initialSize}" />
+		<!-- 连接池最大使用连接数量 -->
+		<property name="maxActive" value="${duird.maxActive}" />
+		<!-- 连接池最大空闲 -->
+		<!-- <property name="maxIdle" value="${duird.maxIdle}" /> -->
+		<!-- 连接池最小空闲 -->
+		<property name="minIdle" value="${duird.minIdle}" />
+		<!-- 获取连接最大等待时间 -->
+		<property name="maxWait" value="${duird.maxWait}" />
+		<property name="validationQuery" value="${validationQuery.sqlserver}" />
+		<property name="testOnBorrow" value="${duird.testOnBorrow}" />
+		<property name="testOnReturn" value="${duird.testOnReturn}" />
+		<property name="testWhileIdle" value="${duird.testWhileIdle}" />
+
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="${duird.timeBetweenEvictionRunsMillis}" />
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="${duird.minEvictableIdleTimeMillis}" />
+
+		<!-- 打开removeAbandoned功能 -->
+		<property name="removeAbandoned" value="${duird.removeAbandoned}" />
+		<!-- 1800秒，也就是30分钟 -->
+		<property name="removeAbandonedTimeout" value="${duird.removeAbandonedTimeout}" />
+		<!-- 关闭abanded连接时输出错误日志 -->
+		<property name="logAbandoned" value="${duird.logAbandoned}" />
+
+		<!-- 开启Druid的监控统计功能 -->
+		<property name="filters" value="${duird.filters}" />
+		<!--<property name="filters" value="mergeStat" /> -->
+	</bean>
+
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:mybatis.xml" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- transaction manager, use JtaTransactionManager for global tx -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 流程引擎配置对象 -->
+	<bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+		<property name="dataSource" ref="dataSource" />
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="databaseSchemaUpdate" value="true" />
+		<property name="mailServerHost" value="localhost" />
+		<property name="mailServerPort" value="5025" />
+		<!-- <property name="jpaEntityManagerFactory" ref="entityManagerFactory" 
+			/> -->
+		<property name="jpaHandleTransaction" value="true" />
+		<property name="jpaCloseEntityManager" value="true" />
+		<property name="jobExecutorActivate" value="false" />
+	</bean>
+	<!-- 流程引擎对象 -->
+	<bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+		<property name="processEngineConfiguration" ref="processEngineConfiguration" />
+	</bean>
+	<!-- 仓库对象 -->
+	<bean id="repositoryService" factory-bean="processEngine"
+		factory-method="getRepositoryService" />
+	<!-- 运行时服务对象 -->
+	<bean id="runtimeService" factory-bean="processEngine"
+		factory-method="getRuntimeService" />
+	<!-- 任务服务对象 -->
+	<bean id="taskService" factory-bean="processEngine"
+		factory-method="getTaskService" />
+	<!-- 历史服务对象 -->
+	<bean id="historyService" factory-bean="processEngine"
+		factory-method="getHistoryService" />
+
+
+
+	<!-- <context:annotation-config> 是用于激活那些已经在spring容器里注册过的bean（无论是通过xml的方式还是通过package 
+		sanning的方式）上面的注解。 <context:component-scan>除了具有<context:annotation-config>的功能之外，<context:component-scan>还可以在指定的package下扫描以及注册javabean 
+		。 <context:annotation-config> 的配置目的 1、如果想使用@Autowired注解，那么就必须事先在 Spring 容器中声明 
+		AutowiredAnnotationBeanPostProcessor Bean。 传统声明方式如下： <bean class="org.springframework.beans.factory.annotation. 
+		AutowiredAnnotationBeanPostProcessor "/> 2、如果想使用@ Resource 、@ PostConstruct、@ 
+		PreDestroy等注解就必须声明CommonAnnotationBeanPostProcessor Bean。 3、如果想使用@PersistenceContext注解，就必须声明PersistenceAnnotationBeanPostProcessor的Bean。 
+		4、如果想使用@Required的注解，就必须声明RequiredAnnotationBeanPostProcessor的Bean。 -->
+	<!-- <mvc:interceptors> <mvc:interceptor> <mvc:mapping path="/**" /> 需排除拦截的地址 
+		<bean class="tangzongyun.activiti.interceptor.SessionFilter" /> </mvc:interceptor> 
+		</mvc:interceptors> -->
+
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+		<property name="interceptors">
+			<list>
+				<bean class="tangzongyun.activiti.interceptor.SessionFilter"></bean>
+			</list>
+		</property>
+	</bean>
+
+
+	<!--注册注解项 -->
+	<!-- <context:component-scan base-package="org.activiti.demo.*" /> -->
+
+	<!-- 就是支持事务注解的（@Transactional） -->
+	<tx:annotation-driven />
+
+	<!-- 启用自动扫描 -->
+	<context:component-scan base-package="tangzongyun.activiti" />
+
+	<!-- enable autowire -->
+	<!-- <context:annotation-config /> -->
+
+	
+</beans>

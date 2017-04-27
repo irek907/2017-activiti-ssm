@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!-- Always ensure to use the correct XML header as above! -->
+ <mapper namespace="tangzongyun.activiti.UserTask">
+	<select id="listUserTask" resultType="userTask" parameterType="userTask">
+		select 
+			r.ID_ as ID,
+			r.execution_id_ as executionId,
+			r.proc_inst_Id_ as procinstId,
+			r.proc_def_id_ as prodefId,
+			r.assignee_ as assignee,
+			r.create_Time_ as createTime,
+			u.ID as userID,
+			u.userName as userName,
+			f.logTime as logTime,
+			f.recordID as recordID
+		from t_user as u,t_flow_log as f,act_ru_task as r 
+		where r.proc_inst_Id_ = f.flowID and r.ASSIGNEE_ != u.userName
+		<if test="assignee != null">
+		 	AND r.assignee_ = #{assignee}
+		</if>
+		group by r.ID_ having count(r.ID_) > 1
+	</select>
+	<select id="listUserTaskCount" resultType="java.lang.Integer" parameterType="userTask">
+		select 
+			count(r.ID_) 
+		from t_user as u,t_flow_log as f,act_ru_task as r 
+		where r.ID_ = f.taskID and r.assignee_ = u.username
+		<if test="assignee != null">
+		 	AND r.assignee_ = #{assignee}
+		</if>
+	</select>
+</mapper>

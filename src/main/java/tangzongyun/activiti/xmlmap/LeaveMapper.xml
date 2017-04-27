@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!-- Always ensure to use the correct XML header as above! -->
+ <mapper namespace="tangzongyun.activiti.Leave">
+	<insert id="insertLeave" parameterType="leave">
+		insert into t_leave (
+		leavePerson,
+		superior,
+		startTime,
+		endTime,
+		leaveReasons,
+		createTime,
+		userID,
+		domStatus
+		)
+		values
+		(
+		#{leavePerson,jdbcType=VARCHAR},
+		#{superior,jdbcType=VARCHAR},
+		#{startTime,jdbcType=VARCHAR},
+		#{endTime,jdbcType=VARCHAR},
+		#{leaveReasons,jdbcType=VARCHAR},
+		date_format(now(),'%y-%m-%d %h:%m:%s'),
+		#{userID,jdbcType=VARCHAR},
+		#{domStatus,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<update id="updateLeave" parameterType="leave">
+		update t_leave
+		<set>
+			<if test="leavePerson != null">
+			leavePerson = #{leavePerson},
+			</if>
+			<if test="superior != null">
+			superior = #{superior},
+			</if>
+			<if test="startTime != null">
+			startTime = #{startTime},
+			</if>
+			<if test="endTime != null">
+			endTime = #{endTime},
+			</if>
+			<if test="leaveReasons != null">
+			leaveReasons = #{leaveReasons},
+			</if>
+			<if test="createTime != null">
+			createTime = #{createTime},
+			</if>
+			<if test="userID != null">
+			userID = #{userID},
+			</if>
+			<if test="domStatus != null">
+			domStatus = #{domStatus}
+			</if>
+		</set>
+		where 1 = 1 
+		<if test="ID != null and ID != 0">
+			AND	ID = #{ID}
+		</if>
+	</update>
+	
+	<delete id="deleteLeave" parameterType="leave">
+		delete from t_leave
+		<where>
+			<if test="ID != null and ID != 0">
+			  AND ID = #{ID}
+			</if>
+			<if test="leavePerson != null">
+			  AND leavePerson = #{leavePerson}
+			</if>
+			<if test="superior != null">
+			  AND superior = #{superior}
+			</if>
+			<if test="startTime != null">
+			  AND startTime = #{startTime}
+			</if>
+			<if test="endTime != null">
+			  AND endTime = #{endTime}
+			</if>
+			<if test="leaveReasons != null">
+			  AND leaveReasons = #{leaveReasons}
+			</if>
+			<if test="createTime != null">
+			  AND createTime = #{createTime}
+			</if>
+			<if test="userID != null">
+			  AND userID = #{userID}
+			</if>
+			<if test="domStatus != null">
+			  AND domStatus = #{domStatus}
+			</if>
+		</where>
+	</delete>
+	
+	<select id="listLeave" resultType="leave" parameterType="leave">
+		select
+		*
+		from t_leave WHERE 1=1
+		<if test="ID != null and ID != 0">
+		 AND ID = #{ID}
+		</if>
+		<if test="leavePerson != null">
+		 AND leavePerson = #{leavePerson}
+		</if>
+		<if test="superior != null">
+		 AND superior = #{superior}
+		</if>
+		<if test="startTime != null">
+		 AND startTime = #{startTime}
+		</if>
+		<if test="endTime != null">
+		 AND endTime = #{endTime}
+		</if>
+		<if test="leaveReasons != null">
+		 AND leaveReasons = #{leaveReasons}
+		</if>
+		<if test="createTime != null">
+		 AND createTime = #{createTime}
+		</if>
+		<if test="userID != null">
+		 AND userID = #{userID}
+		</if>
+		<if test="domStatus != null">
+		 AND domStatus = #{domStatus}
+		</if>
+	</select>
+
+	<select id="listLeaveCount" resultType="java.lang.Integer" parameterType="leave">
+		select
+		COUNT(*)
+		from
+		t_leave where 1=1
+		<if test="ID != null and ID != 0">
+		 AND ID = #{ID}
+		</if>
+		<if test="leavePerson != null">
+		 AND leavePerson = #{leavePerson}
+		</if>
+		<if test="superior != null">
+		 AND superior = #{superior}
+		</if>
+		<if test="startTime != null">
+		 AND startTime = #{startTime}
+		</if>
+		<if test="endTime != null">
+		 AND endTime = #{endTime}
+		</if>
+		<if test="leaveReasons != null">
+		 AND leaveReasons = #{leaveReasons}
+		</if>
+		<if test="createTime != null">
+		 AND createTime = #{createTime}
+		</if>
+		<if test="userID != null">
+		 AND userID = #{userID}
+		</if>
+		<if test="domStatus != null">
+		 AND domStatus = #{domStatus}
+		</if>
+	</select>
+	
+	<select id="findLeaveByID" resultType="leave" parameterType="leave">
+		select
+		*
+		from t_leave
+		where 1 = 1
+		<if test="ID != null and ID != 0">
+		 AND ID = #{ID}
+		</if>
+	</select>
+	
+	<select id="selectsequence" resultType="java.lang.Integer">
+		select last_insert_id()
+    </select>
+</mapper>
