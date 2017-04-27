@@ -248,15 +248,16 @@ public class UnZipFile {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		String basePath = System.getProperty("user.dir");
 		//unzip("E:\\test\\test.zip");
 		try {
-			File file = new File("F:\\tangzongyun\\javaworkspace\\Activiti-Test-V2\\WFZIP"+File.separator+"leavewf.zip");
+			File file = new File(basePath+"\\WFZIP"+File.separator+"leavewf.zip");
 			if(file.exists()){
 				boolean b = 	file.delete();
 				if(b)
 					System.out.println("delete OK!");
 			}
-			zip("F:\\tangzongyun\\javaworkspace\\Activiti-Test-V2\\WF","F:\\tangzongyun\\javaworkspace\\Activiti-Test-V2\\WFZIP","leavewf.zip");
+			zip(basePath+"\\WF",basePath+"\\WFZIP","leavewf.zip");
 
 			if(file.exists()){
 				System.out.println("zip OK!");
