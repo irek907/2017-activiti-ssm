@@ -28,12 +28,15 @@ import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.repository.Deployment;
+import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.activiti.image.impl.DefaultProcessDiagramGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import tangzongyun.activiti.sys.domain.result.ProcessDefinitionBean;
 
 /**
  * 
@@ -61,6 +64,8 @@ public class ProcessEngineCore {
 
 	@Resource(name = "historyService")
 	private HistoryService historyService;
+	@Resource(name = "processEngine")
+	ProcessEngine processEngine;
 
 	/**
 	 * 部署流程实例
@@ -257,7 +262,7 @@ public class ProcessEngineCore {
 		BpmnModel bpmnModel = repositoryService  
 				.getBpmnModel(pde.getId()); 
 		// imageStream = new DefaultProcessDiagramGenerator().generateDiagram(pde, "png", runtimeService.getActiveActivityIds(findProcessInstanceByTaskId(taskId).getId()));
-		ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
+		//ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
 		//获取processEngine的三种方法http://www.cnblogs.com/lonecloud/p/5797532.html
 		//获取流程图，不带活动节点信息
 		/* imageStream =  processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator().generateDiagram(bpmnModel, "png",
@@ -267,17 +272,19 @@ public class ProcessEngineCore {
 	        		processEngine.getProcessEngineConfiguration().getClassLoader(), 1.0);
 		 */
 		logger.info("hello");
-		imageStream =  processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator().generateDiagram(bpmnModel, "png", runtimeService.getActiveActivityIds(findProcessInstanceByTaskId(taskId).getId()));
-		imageStream =  processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator().generateDiagram(bpmnModel, "png",
+		//中文乱码
+		//imageStream =  processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator().generateDiagram(bpmnModel, "png", runtimeService.getActiveActivityIds(findProcessInstanceByTaskId(taskId).getId()));
+		//不带活动节点
+		/*	imageStream =  processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator().generateDiagram(bpmnModel, "png",
 				"宋体",
 				"宋体", 
 				"宋体",
 				processEngine.getProcessEngineConfiguration().getClassLoader(), 1.0);
-		
+		 */
 		ProcessDefinitionEntity definitionEntity = (ProcessDefinitionEntity)repositoryService.getProcessDefinition(pInstance.getProcessDefinitionId());
-        List<HistoricActivityInstance> highLightedActivitList =  historyService.createHistoricActivityInstanceQuery().processInstanceId(pId).list();
-		 List<String> highLightedFlows = getHighLightedFlows(definitionEntity,highLightedActivitList);
-
+		List<HistoricActivityInstance> highLightedActivitList =  historyService.createHistoricActivityInstanceQuery().processInstanceId(pId).list();
+		List<String> highLightedFlows = getHighLightedFlows(definitionEntity,highLightedActivitList);
+		//活动图
 		imageStream =  processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator().generateDiagram(bpmnModel, "png",
 				runtimeService.getActiveActivityIds(findProcessInstanceByTaskId(taskId).getId()),
 				highLightedFlows,
@@ -285,7 +292,7 @@ public class ProcessEngineCore {
 				"宋体", 
 				"宋体",
 				processEngine.getProcessEngineConfiguration().getClassLoader(), 1.0);
-		
+
 		/*
 		 generateImage(BpmnModel bpmnModel, String imageType, List highLightedActivities, List highLightedFlows, String activityFontName, String labelFontName, String annotationFontName, 
 		            ClassLoader customClassLoader, double scaleFactor);
@@ -312,59 +319,110 @@ public class ProcessEngineCore {
 	                     processEngine.getProcessEngineConfiguration().getLabelFontName(), 
 
 	                     1.0);*/
+		//findProcessDefinition();
 		return imageStream;
 	}
-	
+
 	/**
-     * 获取需要高亮的线
-     * @param processDefinitionEntity
-     * @param historicActivityInstances
-     * @return
-     */
-    private List<String> getHighLightedFlows(
-            ProcessDefinitionEntity processDefinitionEntity,
-            List<HistoricActivityInstance> historicActivityInstances) {
-        List<String> highFlows = new ArrayList<String>();// 用以保存高亮的线flowId
-        for (int i = 0; i < historicActivityInstances.size() - 1; i++) {// 对历史流程节点进行遍历
-            ActivityImpl activityImpl = processDefinitionEntity
-                    .findActivity(historicActivityInstances.get(i)
-                            .getActivityId());// 得到节点定义的详细信息
-            List<ActivityImpl> sameStartTimeNodes = new ArrayList<ActivityImpl>();// 用以保存后需开始时间相同的节点
-            ActivityImpl sameActivityImpl1 = processDefinitionEntity
-                    .findActivity(historicActivityInstances.get(i + 1)
-                            .getActivityId());
-            // 将后面第一个节点放在时间相同节点的集合里
-            sameStartTimeNodes.add(sameActivityImpl1);
-            for (int j = i + 1; j < historicActivityInstances.size() - 1; j++) {
-                HistoricActivityInstance activityImpl1 = historicActivityInstances
-                        .get(j);// 后续第一个节点
-                HistoricActivityInstance activityImpl2 = historicActivityInstances
-                        .get(j + 1);// 后续第二个节点
-                if (activityImpl1.getStartTime().equals(
-                        activityImpl2.getStartTime())) {
-                    // 如果第一个节点和第二个节点开始时间相同保存
-                    ActivityImpl sameActivityImpl2 = processDefinitionEntity
-                            .findActivity(activityImpl2.getActivityId());
-                    sameStartTimeNodes.add(sameActivityImpl2);
-                } else {
-                    // 有不相同跳出循环
-                    break;
-                }
-            }
-            List<PvmTransition> pvmTransitions = activityImpl
-                    .getOutgoingTransitions();// 取出节点的所有出去的线
-            for (PvmTransition pvmTransition : pvmTransitions) {
-                // 对所有的线进行遍历
-                ActivityImpl pvmActivityImpl = (ActivityImpl) pvmTransition
-                        .getDestination();
-                // 如果取出的线的目标节点存在时间相同的节点里，保存该线的id，进行高亮显示
-                if (sameStartTimeNodes.contains(pvmActivityImpl)) {
-                    highFlows.add(pvmTransition.getId());
-                }
-            }
-        }
-        return highFlows;
-    }
+	 * 获取需要高亮的线
+	 * @param processDefinitionEntity
+	 * @param historicActivityInstances
+	 * @return
+	 */
+	private List<String> getHighLightedFlows(
+			ProcessDefinitionEntity processDefinitionEntity,
+			List<HistoricActivityInstance> historicActivityInstances) {
+		List<String> highFlows = new ArrayList<String>();// 用以保存高亮的线flowId
+		for (int i = 0; i < historicActivityInstances.size() - 1; i++) {// 对历史流程节点进行遍历
+			ActivityImpl activityImpl = processDefinitionEntity
+					.findActivity(historicActivityInstances.get(i)
+							.getActivityId());// 得到节点定义的详细信息
+			List<ActivityImpl> sameStartTimeNodes = new ArrayList<ActivityImpl>();// 用以保存后需开始时间相同的节点
+			ActivityImpl sameActivityImpl1 = processDefinitionEntity
+					.findActivity(historicActivityInstances.get(i + 1)
+							.getActivityId());
+			// 将后面第一个节点放在时间相同节点的集合里
+			sameStartTimeNodes.add(sameActivityImpl1);
+			for (int j = i + 1; j < historicActivityInstances.size() - 1; j++) {
+				HistoricActivityInstance activityImpl1 = historicActivityInstances
+						.get(j);// 后续第一个节点
+				HistoricActivityInstance activityImpl2 = historicActivityInstances
+						.get(j + 1);// 后续第二个节点
+				if (activityImpl1.getStartTime().equals(
+						activityImpl2.getStartTime())) {
+					// 如果第一个节点和第二个节点开始时间相同保存
+					ActivityImpl sameActivityImpl2 = processDefinitionEntity
+							.findActivity(activityImpl2.getActivityId());
+					sameStartTimeNodes.add(sameActivityImpl2);
+				} else {
+					// 有不相同跳出循环
+					break;
+				}
+			}
+			List<PvmTransition> pvmTransitions = activityImpl
+					.getOutgoingTransitions();// 取出节点的所有出去的线
+			for (PvmTransition pvmTransition : pvmTransitions) {
+				// 对所有的线进行遍历
+				ActivityImpl pvmActivityImpl = (ActivityImpl) pvmTransition
+						.getDestination();
+				// 如果取出的线的目标节点存在时间相同的节点里，保存该线的id，进行高亮显示
+				if (sameStartTimeNodes.contains(pvmActivityImpl)) {
+					highFlows.add(pvmTransition.getId());
+				}
+			}
+		}
+		return highFlows;
+	}
+
+	public  List<ProcessDefinitionBean> findProcessDefinition(){    
+		List<ProcessDefinitionBean> list2 = new ArrayList<ProcessDefinitionBean>();
+		List<ProcessDefinition> list = processEngine.getRepositoryService()//与流程定义和部署对象相关的Service    
+				.createProcessDefinitionQuery()//创建一个流程定义的查询    
+				/**指定查询条件,where条件*/    
+				//	                      .deploymentId(deploymentId)//使用部署对象ID查询    
+				//	                      .processDefinitionId(processDefinitionId)//使用流程定义ID查询    
+				//	                      .processDefinitionKey(processDefinitionKey)//使用流程定义的key查询    
+				//	                      .processDefinitionNameLike(processDefinitionNameLike)//使用流程定义的名称模糊查询    
+
+				/**排序*/    
+				.orderByProcessDefinitionVersion().asc()//按照版本的升序排列    
+				//	                      .orderByProcessDefinitionName().desc()//按照流程定义的名称降序排列    
+
+				/**返回的结果集*/    
+				.list();//返回一个集合列表，封装流程定义    
+		//	                      .singleResult();//返回惟一结果集    
+		//	                      .count();//返回结果集数量    
+		//	                      .listPage(firstResult, maxResults);//分页查询    
+
+		if(list!=null && list.size()>0){    
+			for(ProcessDefinition pd:list){    
+				ProcessDefinitionBean bean = new ProcessDefinitionBean();
+				bean.setId(pd.getId());
+				bean.setName(pd.getName());
+				bean.setKey(pd.getKey());
+				
+				bean.setVersion(pd.getVersion()+"");
+				
+				bean.setResourceName(pd.getResourceName());
+				
+				bean.setDiagramResourceName(pd.getDiagramResourceName());
+				
+				bean.setDeploymentId(pd.getDeploymentId());
+				
+				/*System.out.println("流程定义ID:"+pd.getId());//流程定义的key+版本+随机生成数    
+				System.out.println("流程定义的名称:"+pd.getName());//对应helloworld.bpmn文件中的name属性值    
+				System.out.println("流程定义的key:"+pd.getKey());//对应helloworld.bpmn文件中的id属性值    
+				System.out.println("流程定义的版本:"+pd.getVersion());//当流程定义的key值相同的相同下，版本升级，默认1    
+				System.out.println("资源名称bpmn文件:"+pd.getResourceName());    
+				System.out.println("资源名称png文件:"+pd.getDiagramResourceName());    
+				System.out.println("部署对象ID："+pd.getDeploymentId());    
+				System.out.println("#########################################################");    */
+				
+				list2.add(bean);
+			}    
+		} 
+		return list2;
+	}
 
 	public void setRepositoryService(RepositoryService repositoryService) {
 		this.repositoryService = repositoryService;

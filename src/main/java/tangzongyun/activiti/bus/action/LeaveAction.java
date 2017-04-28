@@ -3,9 +3,18 @@ package tangzongyun.activiti.bus.action;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
+
+
+
+
+
+
 
 
 
@@ -34,9 +43,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
+import com.alibaba.fastjson.JSON;
+import com.sun.org.apache.xalan.internal.xsltc.runtime.Hashtable;
+
 import tangzongyun.activiti.base.BaseAction;
 import tangzongyun.activiti.bus.domain.Leave;
 import tangzongyun.activiti.bus.service.ILeaveService;
+import tangzongyun.activiti.engine.ProcessEngineCore;
 import tangzongyun.activiti.sys.domain.FlowLog;
 import tangzongyun.activiti.sys.domain.User;
 import tangzongyun.activiti.sys.domain.UserTask;
@@ -70,6 +83,8 @@ public class LeaveAction extends BaseAction {
 	private ILeaveService leaveService;
 	@Resource(name = "processService")
 	private IProcessService processService;
+	@Resource(name = "processEngineCore")
+	private ProcessEngineCore processEngineCore;
 	/** 返回文件流 **/
 	private ByteArrayInputStream inputStream;
 
@@ -274,6 +289,29 @@ public class LeaveAction extends BaseAction {
 			return ERROR;
 		}
 		logger.debug("listFlowLog method running time is " + String.valueOf(System.currentTimeMillis() - startTime) + " ms");
+		return SUCCESS;
+	}
+	@Action(value = "listAllProcDef", results = { @Result(type = "json", params = { "root", "msgList" }) })
+	public String getAllProcessDefine(){
+		
+		try{
+		List list = processEngineCore.findProcessDefinition();
+		
+		Map m =  new HashMap();
+		m.put("rows", list);
+		m.put("total", list.size());
+		
+		String jsonString = JSON.toJSONString(m);  
+		
+		System.out.println("json:"+jsonString);
+		
+		 List msgList = new ArrayList();
+		 
+		 msgList.add(m);
+		setMsgList(msgList);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 		return SUCCESS;
 	}
 

@@ -6,6 +6,7 @@
 <script src="<%=path%>/resources/js/jquery-1.8.1.js" type="text/javascript"></script>
 <script src="<%=path%>/resources/ligerui/js/ligerui.min.js" type="text/javascript"></script>
 <script src="<%=path%>/resources/js/common/common.js" type="text/javascript"></script>
+<script src="<%=path%>/resources/js/mustache.js" type="text/javascript"></script>
 <link href="<%=path%>/resources/common/common.css" rel="stylesheet" type="text/css" />
 
 <script type="text/javascript">

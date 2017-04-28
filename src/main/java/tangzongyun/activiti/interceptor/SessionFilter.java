@@ -41,11 +41,11 @@ public class SessionFilter extends  OncePerRequestFilter{
 		// TODO Auto-generated method 
 
 		String URI = request.getRequestURI();
-		System.out.println(URI);
+		//System.out.println(URI);
 
 		User user =  (User) request.getSession().getAttribute("user");
 		
-		System.out.println("--------------------user="+user);
+		//System.out.println("--------------------user="+user);
 
 		if(URI.endsWith(".jsp") || URI.endsWith("index.html") ||  URI.endsWith("index.action") ){
 

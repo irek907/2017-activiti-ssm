@@ -52,3 +52,72 @@ function checkFormat(file) {
 	}
 	return false;
 }
+var grid;
+var params;
+$(function() {
+	// 获取URL中的参数
+	params = getURLParameter();
+	init();
+});
+function listAllDef(){
+	//listAllProcDef
+	init();
+}
+
+function init() {
+	grid = $("#maingrid").ligerGrid( {
+		// 数据加载地址
+		url : window.ctxPaths + "/activiti/process/listAllProcDef.action",
+		// 表头数据
+		columns : [ {
+			display : '请假ID',
+			name : 'id',
+			hide : true,
+			align : 'left',
+			width : 220,
+			minWidth : 30
+		},{
+			display : '请假原因',
+			name : 'name',
+			hide : false,
+			align : 'left',
+			width : 220,
+			minWidth : 30
+		},  {
+			display : '制单人',
+			name : 'key',
+			align : 'left',
+			width : 130,
+			minWidth : 30
+		}, {
+			display : '上级审批人',
+			name : 'version',
+			align : 'left',
+			width : 150,
+			minWidth : 30
+		} ],
+		pageSize : 30,
+		width : getWidth(0.999),
+		height : getHeight(0.85),
+		enabledSort : false,
+		toolbar : createToolbar(),
+		parms : {
+			"className" : params.className
+		},
+		root : 'rows', // 数据源字段名
+		record : 'total' // 数据源记录数字段名
+	});
+}
+function createToolbar() {
+	var items = [];
+	items.push( {
+		text : "增加",
+		click : function() {
+			optMgr(null, 0);
+		},
+		img : window.ctxPaths + "/resources/ligerui/skins/icons/add.gif"
+	});
+	return {
+		items : items
+	};
+}
