@@ -9,5 +9,6 @@
 </head>
 <body>
 <div id="maingrid"></div>
+<div id="maingrid2"></div>
 </body>
 </html>

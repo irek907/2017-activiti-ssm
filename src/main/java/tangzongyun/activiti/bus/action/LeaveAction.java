@@ -39,12 +39,10 @@ import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.Namespace;
 import org.apache.struts2.convention.annotation.ParentPackage;
 import org.apache.struts2.convention.annotation.Result;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 import com.alibaba.fastjson.JSON;
-import com.sun.org.apache.xalan.internal.xsltc.runtime.Hashtable;
 
 import tangzongyun.activiti.base.BaseAction;
 import tangzongyun.activiti.bus.domain.Leave;
@@ -291,13 +289,13 @@ public class LeaveAction extends BaseAction {
 		logger.debug("listFlowLog method running time is " + String.valueOf(System.currentTimeMillis() - startTime) + " ms");
 		return SUCCESS;
 	}
-	@Action(value = "listAllProcDef", results = { @Result(type = "json", params = { "root", "msgList" }) })
+	@Action(value = "listAllProcDef", results = { @Result(type = "json", params = { "root", "datagrid" }) })
 	public String getAllProcessDefine(){
 		
 		try{
 		List list = processEngineCore.findProcessDefinition();
 		
-		Map m =  new HashMap();
+		/*Map m =  new HashMap();
 		m.put("rows", list);
 		m.put("total", list.size());
 		
@@ -308,7 +306,11 @@ public class LeaveAction extends BaseAction {
 		 List msgList = new ArrayList();
 		 
 		 msgList.add(m);
-		setMsgList(msgList);
+		 */
+		setList(list);
+		setTotal(list.size());
+		
+		
 		}catch(Exception e){
 			e.printStackTrace();
 		}

@@ -57,7 +57,9 @@ var params;
 $(function() {
 	// 获取URL中的参数
 	params = getURLParameter();
-	init();
+	
+	console.log(params);
+	//init();
 });
 function listAllDef(){
 	//listAllProcDef
@@ -70,32 +72,50 @@ function init() {
 		url : window.ctxPaths + "/activiti/process/listAllProcDef.action",
 		// 表头数据
 		columns : [ {
-			display : '请假ID',
-			name : 'id',
+			display : 'deploymentId',
+			name : 'deploymentId',
 			hide : true,
 			align : 'left',
 			width : 220,
 			minWidth : 30
 		},{
-			display : '请假原因',
-			name : 'name',
+			display : 'diagramResourceName',
+			name : 'diagramResourceName',
 			hide : false,
 			align : 'left',
 			width : 220,
 			minWidth : 30
 		},  {
-			display : '制单人',
-			name : 'key',
+			display : 'id',
+			name : 'id',
 			align : 'left',
 			width : 130,
 			minWidth : 30
 		}, {
-			display : '上级审批人',
+			display : 'key',
+			name : 'key',
+			align : 'left',
+			width : 150,
+			minWidth : 30
+		}, {
+			display : 'name',
+			name : 'name',
+			align : 'left',
+			width : 150,
+			minWidth : 30
+		} , {
+			display : 'resourceName',
+			name : 'resourceName',
+			align : 'left',
+			width : 150,
+			minWidth : 30
+		} , {
+			display : 'version',
 			name : 'version',
 			align : 'left',
 			width : 150,
 			minWidth : 30
-		} ],
+		}  ],
 		pageSize : 30,
 		width : getWidth(0.999),
 		height : getHeight(0.85),

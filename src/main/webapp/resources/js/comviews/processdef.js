@@ -7,9 +7,10 @@ var params;
 $(function() {
 	// 获取URL中的参数
 	params = getURLParameter();
+	//initdata();
+	init();
 	initdata();
-	/*init();
-	
+	/*
 	
 	var users = { result: [{ name: "Only", age: 24, sex: "boy" },  
                            { name: "for", age: 24, sex: "boy" },  
@@ -32,9 +33,37 @@ function initdata(){
 		data : null,
 		success : function(json, textStatus) {
 			console.log(json.rows);
-			  var template = "<div><table cellpadding=0 cellspacing=0 class='tb' ><tr><td>Name</td><td>Age</td><td>Sex</td></tr>{{#result}}<tr><td>{{name}}</td><td>{{age}}</td><td>{{sex}}</td></tr>{{/result}}</table><div>";  
-			 var views = Mustache.render(template, json.rows);  
-			 $("#maingrid").html(views);
+			  var template = "<div><table cellpadding=0 cellspacing=0 class='tb' border='1'>" +
+			  		"<tr><td>deploymentId</td>" +
+			  		"<td>diagramResourceName</td>" +
+			  		"<td>id</td>" +
+			  		"<td>key</td>" +
+			  		"<td>name</td>" +
+			  		"<td>resourceName</td>" +
+			  		"<td>version</td>" +
+			  		"</tr>" +
+			  		"{{#result}}" +
+			  		"<tr>" +
+			  		"<td>{{deploymentId}}</td>" +
+			  		"<td>{{diagramResourceName}}</td>" +
+			  		"<td>{{id}}</td>" +
+			  		"<td>{{key}}</td>" +
+			  		"<td>{{name}}</td>" +
+			  		"<td>{{resourceName}}</td>" +
+			  		"<td>{{version}}</td></tr>" +
+			  		"{{/result}}" +
+			  		"</table><div>";  
+			  
+			 // var t = JSON.stringify(json[0].rows);
+			  
+			 // t = "{ result:"+t+"}";
+			  
+			  var t = {
+					  
+					  result: json.rows
+			  };
+			 var views = Mustache.render(template,t );  
+			 $("#maingrid2").html(views);
 			/*if (json.success == true && json.msg == "") {
 
 
@@ -59,81 +88,50 @@ function init() {
 		url : window.ctxPaths + "/activiti/process/listAllProcDef.action",
 		// 表头数据
 		columns : [ {
-			display : '请假ID',
-			name : 'ID',
+			display : 'deploymentId',
+			name : 'deploymentId',
 			hide : true,
 			align : 'left',
 			width : 220,
 			minWidth : 30
 		},{
-			display : '请假原因',
-			name : 'leaveReasons',
+			display : 'diagramResourceName',
+			name : 'diagramResourceName',
 			hide : false,
 			align : 'left',
 			width : 220,
 			minWidth : 30
 		},  {
-			display : '制单人',
-			name : 'leavePerson',
+			display : 'id',
+			name : 'id',
 			align : 'left',
 			width : 130,
 			minWidth : 30
 		}, {
-			display : '上级审批人',
-			name : 'superior',
+			display : 'key',
+			name : 'key',
 			align : 'left',
 			width : 150,
 			minWidth : 30
 		}, {
-			display : '开始日期',
-			name : 'startTime',
+			display : 'name',
+			name : 'name',
 			align : 'left',
-			width : 220,
+			width : 150,
 			minWidth : 30
-		}, {
-			display : '结束时间',
-			name : 'endTime',
+		} , {
+			display : 'resourceName',
+			name : 'resourceName',
 			align : 'left',
-			width : 220,
+			width : 150,
 			minWidth : 30
-		}, {
-			display : '状态',
-			name : 'domStatus',
+		} , {
+			display : 'version',
+			name : 'version',
 			align : 'left',
-			width : 130,
-			minWidth : 30,
-			render : function(rowdata, rowindex, value) {
-				var html = "";
-				if (rowdata.domStatus == "1") {
-					html = "已保存";
-				} else if (rowdata.domStatus == "2") {
-					html = "审核中";
-				} else if (rowdata.domStatus == "3") {
-					html = "审批通过";
-				} else if (rowdata.domStatus == "4") {
-					html = "审批拒绝";
-				}
-				return html;
-			}
-		}, {
-			display : '操作',
-			name : 'opt',
-			align : 'left',
-			width : 200,
-			minWidth : 30,
-			render : function(rowdata, rowindex, value) {
-				var html = "";
-				if (rowdata.domStatus == "2" || rowdata.domStatus == "3") {
-					html += '修改&nbsp;&nbsp;';
-				} else {
-					html += '<a href="javascript:optMgr(\'' + rowdata.ID + '\',\'' + 1 + '\');">修改</a>&nbsp;&nbsp;';
-				}
-				html += '<a href="javascript:optMgr(\'' + rowdata.ID + '\',\'' + 2 + '\');">查看详情</a>&nbsp;&nbsp;';
-				// html += '<a href="javascript:optMgr(\'' + rowdata.ID +
-				// '\',\'' + 3 + '\');">流程详情</a>&nbsp;&nbsp;';
-				return html;
-			}
-		} ],
+			width : 150,
+			minWidth : 30
+		}  ],
 		pageSize : 30,
 		width : getWidth(0.999),
 		height : getHeight(0.85),

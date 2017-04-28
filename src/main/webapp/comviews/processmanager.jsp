@@ -5,11 +5,11 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<title>文件上传</title>
 		<jsp:include page="/resources/common/common.jsp" />
-		<!-- 
+		 
 		<script src="<%=request.getContextPath()%>/resources/js/jquery-1.8.1.js" type="text/javascript"></script>
 		<script src="<%=request.getContextPath()%>/resources/js/jquery.json-2.2.js" type="text/javascript"></script>
 		
-		<script src="<%=request.getContextPath()%>/resources/js/upload/ajaxfileupload.js" type="text/javascript"></script>-->
+		<script src="<%=request.getContextPath()%>/resources/js/upload/ajaxfileupload.js" type="text/javascript"></script>
 		<script src="<%=request.getContextPath()%>/resources/js/upload/upload.js" type="text/javascript"></script>
 	</head>
 	<body>
